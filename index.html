@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AutoClip AI</title><style>
+body{margin:0;background:#0b1020;color:#fff;font:16px Arial;padding:22px}
+main{max-width:700px;margin:30px auto;background:#151d32;padding:24px;border-radius:18px}
+h1{text-align:center}p{color:#bac4d8}input,select,button{display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:14px;border-radius:9px}
+input,select{background:#0b1020;color:white;border:1px solid #35415d}button{background:#725cff;color:white;border:0;font-weight:bold}
+small{color:#bac4d8}a{color:#b6aaff}
+</style></head><body><main>
+<h1>✂️ AutoClip AI</h1><p>Upload a video or enter a URL to create a vertical sample clip.</p>
+<form id="form">
+<label>Video URL (optional)</label><input name="video_url" type="url" placeholder="https://...">
+<label>Or choose a video file</label><input name="video" type="file" accept="video/*">
+<label>Clip duration</label><select name="duration"><option value="30">30 seconds</option><option value="60">60 seconds</option></select>
+<label>Caption language (coming soon)</label><select name="language"><option value="hi">Hindi</option><option value="en">English</option></select>
+<button type="submit">Create sample clip</button>
+</form><p id="status">Ready.</p><small>Starter build: this creates a vertical sample from the start of the video. AI highlight detection and captions are not connected yet.</small>
+</main><script>
+document.getElementById('form').addEventListener('submit',async e=>{
+ e.preventDefault();const form=e.currentTarget;const status=document.getElementById('status');
+ status.textContent='Uploading and processing…';try{
+ const res=await fetch('/api/process',{method:'POST',body:new FormData(form)});
+ if(!res.ok){const err=await res.json();throw new Error(err.detail||'Processing failed')}
+ const blob=await res.blob();const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='autoclip.mp4';a.textContent='Download your clip';status.replaceChildren(a);
+ }catch(err){status.textContent='Error: '+err.message}
+});
+</script></body></html>
