@@ -1,4 +1,12 @@
-import os, uuid, shutil, subprocess
+app = FastAPI(title="AutoClip AI")from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)import os, uuid, shutil, subprocess
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
