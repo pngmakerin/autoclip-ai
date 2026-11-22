@@ -1,1 +1,151 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoClip AI</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #0b1020;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #151d32;
+  border-radius: 18px;
+}
+
+h1 { text-align: center; }
+
+p { color: #bac4d8; }
+
+label {
+  display: block;
+  margin-top: 18px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 9px;
+  font-size: 16px;
+}
+
+input, select {
+  background: #0b1020;
+  color: white;
+  border: 1px solid #35415d;
+}
+
+button {
+  background: #725cff;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#status { margin-top: 20px; }
+
+a { color: #b6aaff; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>✂️ AutoClip AI</h1>
+<p>Turn long videos into vertical short clips.</p>
+
+<form id="clipForm">
+
+<label>Paste Video URL</label>
+<input type="url" name="video_url"
+placeholder="Enter video URL">
+
+<label>Or Upload Video</label>
+<input type="file" name="video" accept="video/*">
+
+<label>Clip Duration</label>
+<select name="duration">
+<option value="30">30 Seconds</option>
+<option value="60">60 Seconds</option>
+</select>
+
+<label>Caption Language (Coming Soon)</label>
+<select name="language">
+<option value="hi">Hindi</option>
+<option value="en">English</option>
+</select>
+
+<button type="submit">Generate Clips</button>
+
+</form>
+
+<p id="status">Your workspace is ready.</p>
+
+<p style="font-size:12px">
+Starter version: creates a vertical sample clip from the beginning.
+AI highlight detection and captions are not connected yet.
+</p>
+
+</div>
+
+<script>
+const form = document.getElementById("clipForm");
+const statusText = document.getElementById("status");
+
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const file = form.querySelector('[name="video"]').files[0];
+  const url = form.querySelector('[name="video_url"]').value.trim();
+
+  if (!file && !url) {
+    statusText.textContent = "Please upload a video or enter a URL.";
+    return;
+  }
+
+  statusText.textContent = "Uploading and processing video...";
+
+  try {
+    const response = await fetch("/api/process", {
+      method: "POST",
+      body: new FormData(form)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Processing failed");
+    }
+
+    const blob = await response.blob();
+    const downloadURL = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = downloadURL;
+    link.download = "autoclip.mp4";
+    link.textContent = "Download Your Clip";
+
+    statusText.replaceChildren(link);
+
+  } catch (error) {
+    statusText.textContent = "Error: " + error.message;
+  }
+});
+</script>
+
+</body>
+</html>
+
